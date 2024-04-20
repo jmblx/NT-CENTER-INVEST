@@ -9,7 +9,6 @@ import java.io.IOException
 
 object AudioUploader {
     fun sendAudioToChat(file: File) {
-        // Corrected usage of MediaType with toMediaType() extension
         val mediaType = "audio/wav".toMediaType()
 
         val requestBody = MultipartBody.Builder()
@@ -24,14 +23,14 @@ object AudioUploader {
 
         OkHttpClient().newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()  // Handle the error
+                e.printStackTrace()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    // Handle the successful response
+                    // TODO: Handle success
                 }
-                response.close()  // Ensure the response is closed
+                response.close()
             }
         })
     }

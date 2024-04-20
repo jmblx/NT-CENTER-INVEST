@@ -9,13 +9,12 @@ class AudioRecorder(private val context: Context) {
     private var audioFile: File? = null
 
     fun startRecording() {
-        // Attempt to create a temporary file to save the recording.
         audioFile = File.createTempFile("record_", ".3gp", context.cacheDir)
         mediaRecorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            setOutputFile(audioFile?.absolutePath) // Handle nullable path appropriately
+            setOutputFile(audioFile?.absolutePath)
             prepare()
             start()
         }

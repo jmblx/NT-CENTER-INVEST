@@ -1,276 +1,189 @@
 package com.example.myapplication
 
-import androidx.compose.runtime.Composable
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import com.example.mobile_app.R
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import androidx.compose.material.*
+import com.example.mobile_app.CurrentDate
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            ChatUI()
-        }
-    }
-}
-
-//@OptIn(ExperimentalMaterialApi::class)
-//@Composable
-//fun ExposedDropdownSample() {
-//    var expanded by remember { mutableStateOf(false) }
-//    val options = listOf("Творческий", "Официальный", "Разговорный")
-//    var selectedIndex by remember { mutableStateOf(0) }
-//
-//    Row (
-//        modifier = Modifier.fillMaxWidth(),
-//        horizontalArrangement = Arrangement.End
-//    ) {
-//            ExposedDropdownMenuBox(
-//                expanded = expanded,
-//                onExpandedChange = {
-//                    expanded = !expanded
-//                }
-//            ) {
-//                TextField(
-//                    readOnly = true,
-//                    value = options[selectedIndex],
-//                    onValueChange = { },
-//                    label = { Text("Выберите стиль речи")},
-//                    trailingIcon = {
-//                        ExposedDropdownMenuDefaults.TrailingIcon(
-//                            expanded = expanded
-//                        )
-//                    },
-//                    colors = ExposedDropdownMenuDefaults.textFieldColors(
-//                        backgroundColor =  Color.White,
-//                        focusedIndicatorColor = Color(0xFF696F83),
-//                        unfocusedIndicatorColor = Color(0xFF696F83)
-//                    ),
-//                    modifier = Modifier
-//                        .padding(5.dp)
-//                        .border(1.dp, Color(0xFF696F83), RoundedCornerShape(4.dp))
-//                )
-//                ExposedDropdownMenu(
-//                    expanded = expanded,
-//                    onDismissRequest = {
-//                        expanded = false
-//                    }
-//                ) {
-//                    options.forEachIndexed { index, selectionOption ->
-//                        DropdownMenuItem(
-//                            onClick = {
-//                                selectedIndex = index
-//                                expanded = false
-//                            }
-//                        ) {
-//                            Text(text = selectionOption, color = Color.Black)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CurrentDate() {
-    val currentDate = LocalDate.now()
-    val formatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy")
-    val formattedDate = currentDate.format(formatter)
-
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = formattedDate,
-            color = Color(0xFFB8B8B8)
-        )
-    }
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Чем я могу вам помочь?" ,
-            color = Color(0xFFB8B8B8)
-        )
-    }
-}
-
-@Composable
-fun ChatUI() {
+fun ChatUIWithScaffold() {
     var text by remember { mutableStateOf("") }
-    var messages by remember { mutableStateOf(listOf<String>()) }
+    var messages by remember { mutableStateOf(listOf("Чем я могу вам помочь?")) }
+    val rowCards = listOf("Поддержка", "Кредитование", "Переводы")
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF696F83)),
-        ) {
-            Text(text = "Чат с банком",
-                Modifier.padding(10.dp),
-                color = Color.White,
-                fontSize = 25.sp
-            )
-        }
+    Scaffold(
+        topBar = { CardTopBar() },
+        bottomBar = { UserInput(
+            text = text,
+            onTextChanged = { newText -> text = newText },
+            onSendMessage = {
+                if (text.isNotBlank()) {
+                    messages = listOf(text) + messages
+                    text = ""
+                }
+            }
+        ) },
+        snackbarHost = { SnackbarHost(hostState = remember { SnackbarHostState() }) }
+    ) { innerPadding ->
+        ChatUI(modifier = Modifier.padding(innerPadding))
+    }
+}
 
+@Composable
+fun ChatUI(modifier: Modifier = Modifier) {
+    var text by remember { mutableStateOf("") }
+    var messages by remember { mutableStateOf(listOf("Чем я могу вам помочь?")) }
+    val rowCards = listOf("Поддержка", "Кредитование", "Переводы")
+
+    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF7F7F7))) {
         CurrentDate()
+        Spacer(modifier = Modifier.height(8.dp))
+        MessageSpace(messages)
+        BottomButtonsRow(rowCards)
+    }
+}
 
-        Column(
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CardTopBar() {
+    TopAppBar(
+        title = { Text(text = "Чат с банком", color = Color.White) },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color(0xFF696F83))
+    )
+}
+
+@Composable
+fun MessageSpace(messages: List<String>) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxHeight(0.8f)
+            .padding(horizontal = 8.dp),
+        reverseLayout = true
+    ) {
+        items(messages) { message ->
+            MessageCard(message)
+        }
+    }
+}
+
+@Composable
+fun MessageCard(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = message,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .background(Color(0xFFC0F5EB), RoundedCornerShape(8.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun BottomButtonsRow(buttons: List<String>) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        items(buttons) { buttonLabel ->
+            BottomButton(text = buttonLabel)
+        }
+    }
+}
+
+@Composable
+fun BottomButton(text: String) {
+    OutlinedButton(
+        onClick = { /* TODO: Реализуйте действие кнопки */ },
+        modifier = Modifier.padding(horizontal = 4.dp),
+        border = BorderStroke(1.dp, Color(0xFF46578B)),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFB2DFDB)
+        )
+    ) {
+        Text(text = text, color = Color.Black, fontSize = 16.sp)
+    }
+}
+
+@Composable
+fun UserInput(text: String, onTextChanged: (String) -> Unit, onSendMessage: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .background(Color.White),
+        verticalAlignment = Alignment.Bottom
+
+    ) {
+        BasicTextField(
+            value = text,
+            onValueChange = onTextChanged,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Send
+            ),
+            keyboardActions = KeyboardActions(
+                onSend = { onSendMessage() }
+            ),
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(8.dp)
-        ) {
-            messages.forEach { message ->
+                .padding(8.dp),
+            decorationBox = { innerTextField ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentWidth(Alignment.End)
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.End
+                    Modifier
+                        .background(Color(0xFFE0E0E0), RoundedCornerShape(24.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text(
-                        text = message,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .background(
-                                color = Color(0xFFC0F5EB),
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            }
-        }
-        LazyRow (
-            modifier = Modifier
-                .padding(10.dp)
-                .align(Alignment.CenterHorizontally)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            item { Button(
-                modifier = Modifier
-                    .height(50.dp)
-                    .padding(5.dp),
-                onClick = { /* TODO */ },
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White, contentColor = Color(0xFF46578B)),
-                border = BorderStroke(2.dp, Color(0xFF46578B)),
-                shape = RoundedCornerShape(20),
-            ) {
-                Text(
-                    text = "Поддержка",
-                    fontSize = 15.sp
-                )
-            }
-                Button(
-                    modifier = Modifier
-                        .height(50.dp)
-                        .padding(5.dp),
-                    onClick = { /* TODO */ },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White, contentColor = Color(0xFF46578B)),
-                    border = BorderStroke(2.dp, Color(0xFF46578B)),
-                    shape = RoundedCornerShape(20),
-                ) {
-                    Text(
-                        text = "Кредитование",
-                        fontSize = 15.sp
-                    )
-                }
-                Button(
-                    modifier = Modifier
-                        .height(50.dp)
-                        .padding(5.dp),
-                    onClick = { /* TODO */ },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White, contentColor = Color(0xFF46578B)),
-                    border = BorderStroke(2.dp, Color(0xFF46578B)),
-                    shape = RoundedCornerShape(20),
-                ) {
-                    Text(
-                        text = "Переводы",
-                        fontSize = 15.sp
-                    )
-                }
-            }
-        }
-        Row (
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(4.dp, shape = RoundedCornerShape(20))
-                    .background(Color.White, RoundedCornerShape(20))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {}) {
-                    Icon(painter = painterResource(id = R.drawable._887792),
-                        contentDescription = "Import Image",
-                        Modifier.size(26.dp))
-                }
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    ),
-                    decorationBox = { innerTextField ->
-                        Row(Modifier.background(Color.Transparent)) {
-                            if (text.isEmpty()) {
-                                Text("Введите сообщение...", color = Color.Gray)
-                            }
-                            innerTextField()
-                        }
+                    if (text.isEmpty()) {
+                        Text("Введите сообщение...", color = Color.Gray)
                     }
-                )
-                IconButton(onClick = {
-                    if (text.isNotBlank()) {
-                        messages = messages + text
-                        text = ""
-                    }
-                }) {
-                    Icon(Icons.Filled.Send, contentDescription = "Send message")
-                }
-                IconButton(onClick = {}) {
-                    Icon(painter = painterResource(id = R.drawable.microphone_1082810),
-                        contentDescription = "Record voice message",
-                        Modifier.size(26.dp))
+                    innerTextField()
                 }
             }
+        )
+        IconButton(onClick = onSendMessage) {
+            Icon(
+                painter = if (text.isNotEmpty()) painterResource(id = R.drawable.send_button) else painterResource(id = R.drawable.micro),
+                contentDescription = if (text.isNotEmpty()) "Отправить сообщение" else "Голосовой ввод",
+                tint = Color(0xFF00796B)
+            )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ChatUIPreview() {
+    ChatUI()
 }
