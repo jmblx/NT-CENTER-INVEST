@@ -1,25 +1,47 @@
-from typing import AsyncGenerator
+# import os
+#
+# from beanie import init_beanie
+# from motor.motor_asyncio import AsyncIOMotorClient
+#
+# from config import mongo_url
+# from user.models import User
+#
+#
+# class DataBase:
+#     client: AsyncIOMotorClient = None
+#
+#     def get_db_client(self) -> AsyncIOMotorClient:
+#         return self.client
+#
+#
+# db = DataBase()
+#
+#
+# def get_database() -> AsyncIOMotorClient:
+#     return db.get_db_client()
+#
+#
+# async def connect_to_mongo():
+#     db.client = AsyncIOMotorClient(
+#     mongo_url, uuidRepresentation="standard"
+# )
+#     await init_beanie(database=db.client.db_name, document_models=[Category, User, Event])
+#
+#
+# def close_mongo_connection():
+#     db.client.close()
+import motor.motor_asyncio
+from beanie import Document
+from fastapi_users.db import BeanieBaseUser, BeanieUserDatabase
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from config import mongo_url
+from user.models import User
 
-from config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
-
-# Ссылка на базу данных для создания сессий
-DATABASE_URL = (
-    f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+client = motor.motor_asyncio.AsyncIOMotorClient(
+    mongo_url, uuidRepresentation="standard"
 )
-Base = declarative_base()
+db = client["database_name"]
 
 
-engine = create_async_engine(DATABASE_URL)
-async_session_maker = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
-
-
-# Функция создания асинхронных сессий
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
+async def get_user_db():
+    yield BeanieUserDatabase(User)
