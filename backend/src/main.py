@@ -14,6 +14,7 @@ from user.models import User
 # from users import auth_backend, fastapi_users
 from crediting.router import router as processing_credit_router
 from reqs.router import router as reqs_router
+import nemo.collections.asr as nemo_asr
 
 
 # from config import REDIS_HOST, REDIS_PORT
@@ -22,8 +23,9 @@ from reqs.router import router as reqs_router
 async def lifespan(app: FastAPI):
     asr_model = nemo_asr.models.EncDecRNNTBPEModel.from_pretrained("nvidia/stt_ru_conformer_transducer_large")
     app.state.asr_model = asr_model
+    print(db.client.db_name)
     await init_beanie(
-        database=db,
+        database=db.client.name,
         document_models=[
             User,
             Request,

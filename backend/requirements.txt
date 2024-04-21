@@ -1,8 +1,11 @@
 fastapi==0.110.2
 python-dotenv==1.0.1
+fastapi-users[beanie]
 uvicorn==0.29.0
 motor==3.4.0
 beanie==1.25.0
 tensorflow==2.16.1
 noisereduce==2.0.0
 librosa==0.8.1
+nemo_toolkit
+gunicorn

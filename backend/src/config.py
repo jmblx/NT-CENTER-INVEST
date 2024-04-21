@@ -16,7 +16,7 @@ MONGO_DB = os.getenv('MONGO_DB', "")
 
 mongo_url = os.getenv(
     'MONGO_URL',
-    f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOSTNAME}:{MONGO_PORT}/{MONGO_DB}?authSource=admin"
+    f'mongodb://{os.getenv("MONGO_HOSTNAME", "localhost")}:27017/{os.getenv("MONGO_DB")}'
 )
 
 SECRET_AUTH = os.environ.get("SECRET_AUTH")

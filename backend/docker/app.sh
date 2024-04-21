@@ -1,5 +1,6 @@
 #!/bin/bash
-alembic upgrade head
+
+
 sleep 5
 cd src
 

@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from bson import ObjectId
@@ -19,7 +20,8 @@ from pydantic import BaseModel, field_validator
 
 
 class RequestAdd(BaseModel):
-    audio_path: str
+    audio_path: Optional[str] = None
+    text: str
 
     class Config:
         from_attributes = True
