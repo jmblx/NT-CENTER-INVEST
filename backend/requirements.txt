@@ -9,3 +9,4 @@ noisereduce==2.0.0
 librosa==0.8.1
 nemo_toolkit
 gunicorn
+nltk

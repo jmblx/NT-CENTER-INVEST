@@ -5,6 +5,7 @@ from beanie import init_beanie
 # import redis.asyncio as aioredis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import torch
 
 from database import db
 from reference.models import Reference
@@ -23,7 +24,13 @@ import nemo.collections.asr as nemo_asr
 async def lifespan(app: FastAPI):
     asr_model = nemo_asr.models.EncDecRNNTBPEModel.from_pretrained("nvidia/stt_ru_conformer_transducer_large")
     app.state.asr_model = asr_model
-    print(db.client.db_name)
+    device = torch.device('cpu')
+    tts_model, _ = torch.hub.load(repo_or_dir='snakers4/silero-models',
+                                  model='silero_tts',
+                                  language='ru',
+                                  speaker='v4_ru')
+    tts_model.to(device)
+    app.state.tts_model = tts_model
     await init_beanie(
         database=db.client.name,
         document_models=[

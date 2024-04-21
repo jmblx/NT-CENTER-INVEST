@@ -12,18 +12,17 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libssl-dev
 
-# Обновление pip и установка Cython и wheel
 RUN pip install --upgrade pip setuptools wheel Cython
 
-# Установка зависимостей из requirements.txt
+RUN pip install nltk
+
+RUN python -m nltk.downloader punkt
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Установка Nemo Toolkit с дополнениями
 RUN pip install nemo_toolkit[all]
 
 COPY . .
-
-# RUN python -m nltk.downloader punkt
 
 RUN chmod a+x docker/*.sh

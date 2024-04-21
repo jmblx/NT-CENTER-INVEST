@@ -25,3 +25,8 @@ class RequestAdd(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SpeechRequest(BaseModel):
+    text: str
+    model_name: str = "kseniya"
